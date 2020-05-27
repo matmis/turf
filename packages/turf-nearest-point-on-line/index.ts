@@ -60,39 +60,39 @@ function nearestPointOnLine<G extends LineString|MultiLineString>(
         for (let i = 0; i < coords.length - 1; i++) {
             //start
             const start = point(coords[i]);
-            start.properties.dist = distance(pt, start, options);
+            start.properties.dist = distance(pt, start, options); //distance between currentlocation and start
             //stop
             const stop = point(coords[i + 1]);
-            stop.properties.dist = distance(pt, stop, options);
+            stop.properties.dist = distance(pt, stop, options); //distance between currentlocation and stop
             // sectionLength
-            const sectionLength = distance(start, stop, options);
+            const sectionLength = distance(start, stop, options); //distance between start and stop
             //perpendicular
-            const heightDistance = Math.max(start.properties.dist, stop.properties.dist);
+            const heightDistance = Math.max(start.properties.dist, stop.properties.dist); //distance between farest point of section and current location
             const direction = bearing(start, stop);
-            const perpendicularPt1 = destination(pt, heightDistance, direction + 90, options);
+            const perpendicularPt1 = destination(pt, heightDistance, direction + 90, options); 
             const perpendicularPt2 = destination(pt, heightDistance, direction - 90, options);
             const intersect = lineIntersects(
                 lineString([perpendicularPt1.geometry.coordinates, perpendicularPt2.geometry.coordinates]),
                 lineString([start.geometry.coordinates, stop.geometry.coordinates])
-            );
+            ); //punten waar de perpendicular kruisen met de lijn sectie
             let intersectPt = null;
-            if (intersect.features.length > 0) {
+            if (intersect.features.length > 0) { 
                 intersectPt = intersect.features[0];
-                intersectPt.properties.dist = distance(pt, intersectPt, options);
-                intersectPt.properties.location = length + distance(start, intersectPt, options);
+                intersectPt.properties.dist = distance(pt, intersectPt, options); // distance between currentlocation and intersectPt
+                intersectPt.properties.location = length + distance(start, intersectPt, options); //distance over line of intersectPt
             }
 
-            if (start.properties.dist < closestPt.properties.dist) {
+            if (start.properties.dist < closestPt.properties.dist) {// if (distance between currentlocation and start < distance to closest point)
                 closestPt = start;
                 closestPt.properties.index = i;
                 closestPt.properties.location = length;
             }
-            if (stop.properties.dist < closestPt.properties.dist) {
+            if (stop.properties.dist < closestPt.properties.dist) { // if (distance between currentlocation and stop < distance to closest point )
                 closestPt = stop;
                 closestPt.properties.index = i + 1;
                 closestPt.properties.location = length + sectionLength;
             }
-            if (intersectPt && intersectPt.properties.dist < closestPt.properties.dist) {
+            if (intersectPt && intersectPt.properties.dist < closestPt.properties.dist) { // if ( intersectie and  (distance between currentlocation and intersectPt) < distance to closest point
                 closestPt = intersectPt;
                 closestPt.properties.index = i;
             }
